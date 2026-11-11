@@ -1,0 +1,197 @@
+# Registro vivo del kit
+#
+# Que skills existen, que ideas esperan destilacion, que gaps se detectaron.
+# Archivo de texto versionado: tiene que poder leerlo un humano con `cat`.
+#
+# Estados de skill:   activa | candidata | en_revision | deprecada
+# Estados de idea:    idea -> candidata -> descartada | promovida
+#
+# Regla de promocion: una skill entra al perfil `standard` solo despues de
+# usarse en 2+ proyectos distintos. Ver spec/product-spec.md § 4.4.
+
+meta:
+  version: 1
+  updated: "2026-11-11"
+  kit_version: "0.1.0"
+
+skills:
+  - name: dev-kit-sdd-workflow
+    status: activa
+    area: methodology
+    projects_used: 0
+    summary: Flujo SDD de 9 fases con artefacto y gate por fase.
+    source: destilada
+
+  - name: dev-kit-project-constitution
+    status: idea
+    area: methodology
+    projects_used: 0
+    summary: Principios fundacionales del proyecto antes de codear.
+    source: destilada
+
+  - name: dev-kit-spec-authoring
+    status: idea
+    area: methodology
+    projects_used: 0
+    summary: Contrato OpenAPI y historias de usuario.
+    source: destilada
+
+  - name: dev-kit-backlog-tickets
+    status: idea
+    area: methodology
+    projects_used: 0
+    summary: Material crudo -> backlog jerarquico de historias.
+    source: destilada
+
+  - name: dev-kit-spec-analysis
+    status: idea
+    area: methodology
+    projects_used: 0
+    summary: Coherencia spec -> plan -> estimacion.
+    source: destilada
+
+  - name: dev-kit-cost-estimation
+    status: idea
+    area: methodology
+    projects_used: 0
+    summary: Costos de infra, tokens y equipo antes de implementar.
+    source: destilada
+
+  - name: dev-kit-project-bootstrap
+    status: idea
+    area: methodology
+    projects_used: 0
+    summary: Scaffold de proyecto nuevo desde cero.
+    source: destilada
+
+  - name: dev-kit-task-breakdown
+    status: idea
+    area: methodology
+    projects_used: 0
+    summary: Plan -> tareas asignables con contexto explicito.
+    source: destilada
+
+  - name: dev-kit-agent-team
+    status: idea
+    area: agents
+    projects_used: 0
+    summary: Roster de agentes, limites y handoffs.
+    source: destilada
+
+  - name: dev-kit-agent-routing
+    status: idea
+    area: agents
+    projects_used: 0
+    summary: Routing declarativo goal -> agente con scoring.
+    source: destilada
+
+  - name: dev-kit-orchestrator
+    status: idea
+    area: agents
+    projects_used: 0
+    summary: Loop de orquestacion, estados, reintentos, escalamiento.
+    source: destilada
+
+  - name: dev-kit-code-quality
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Estandares, lint, tipos y gates.
+    source: destilada
+
+  - name: dev-kit-backend-stack
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Convenciones del backend y estructura de proyecto.
+    source: destilada
+
+  - name: dev-kit-frontend-stack
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Convenciones del frontend y arbol de componentes.
+    source: destilada
+
+  - name: dev-kit-database
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Modelado, indices, migraciones, aislamiento.
+    source: destilada
+
+  - name: dev-kit-security
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Baseline de seguridad y checklist de pre-deploy.
+    source: destilada
+
+  - name: dev-kit-ci-cd
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Pipeline con gates, matriz y promocion entre ambientes.
+    source: destilada
+
+  - name: dev-kit-observability
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Logging estructurado, metricas, health checks, SLOs.
+    source: destilada
+
+  - name: dev-kit-documentation
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: README, ADRs y documentacion viva.
+    source: destilada
+
+  - name: dev-kit-testing
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Piramide de tests y cobertura util.
+    source: destilada
+
+  - name: dev-kit-review
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: Checklist de review, severidad y bloqueos de merge.
+    source: destilada
+
+  - name: dev-kit-rag-pipeline
+    status: idea
+    area: vertical
+    projects_used: 0
+    summary: Chunking, embeddings, retrieval y evaluacion.
+    source: destilada
+
+  - name: dev-kit-browser-agent
+    status: idea
+    area: vertical
+    projects_used: 0
+    summary: Agente de navegador para scraping y QA exploratorio.
+    source: destilada
+
+  - name: dev-kit-document-processing
+    status: idea
+    area: vertical
+    projects_used: 0
+    summary: Extraccion y limpieza de texto de documentos.
+    source: destilada
+
+# ---------------------------------------------------------------- ideas pendientes
+# Lo que todavia no es skill pero se detecto como patron reusable.
+ideas: []
+
+# ---------------------------------------------------------------- gaps detectados
+# Donde el kit no cubrio algo y senotationo durante un proyecto real.
+gaps: []
+
+# ---------------------------------------------------------------- descartes
+# Huellas que no se pudieron destilar. Se guarda el APRENDIZAJE, nunca el dato.
+# Formato: - fecha:motivo_del_descarte:aprendizaje_generico
+descartes: []
