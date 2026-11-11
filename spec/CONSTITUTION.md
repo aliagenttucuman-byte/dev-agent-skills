@@ -15,9 +15,23 @@ artefacto, no con la sensacion de avance.
 **Regla:** ninguna skill contiene nombres de personas, marcas, corporaciones,
 clientes, repos privados, IDs de proyectos ni rutas de maquinas concretas.
 
-**Verificacion:** `scan_clean.py` corre en CI y falla el build. La lista de
-terminos prohibidos vive en un solo archivo (`scripts/forbidden_terms.py`) para
-que sea auditable y extensible.
+**Verificacion:** `scan_clean.py` corre en CI y falla el build. Las reglas
+publicas viven en un solo archivo (`scripts/forbidden_terms.py`) para que sean
+auditable y extensible.
+
+**Sobre la denylist:** el repo publico NO puede contener la lista de terminos
+prohibidos: seria tan sensible como los terminos que prohibe. Por eso:
+
+- El repo publica **reglas estructurales** que detectan la clase de
+  contaminacion sin nombrar a nadie (rutas de maquina, dominios de cliente).
+- Los terminos concretos viven en una **denylist privada** en
+  `~/.config/dev-agent-kit/denylist.local.json`, que no se versiona nunca.
+- Cuando el scanner detecta uno, lo reporta por **hash**, no por nombre: el log
+  de CI es publico. Con `--private-labels` se ve el nombre real, para uso
+  local.
+
+La consecuencia practica: el repo se puede publicar y auditar sin filtrar
+nada, y la deteccion sigue siendo completa.
 
 **Por que:** el valor del kit es el conocimiento destilado. Un dato de cliente
 en una skill no agrega valor: agrega riesgo de fuga y vuelve el kit

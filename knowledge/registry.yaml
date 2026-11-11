@@ -271,10 +271,18 @@ gaps:
     finding: >
       La denylist de forbidden_terms.py vive en un repo publico con los nombres
       exactos de los clientes que se quiere excluir.
-    resolution: PENDIENTE - migrar a hashes o configuracion local.
+    resolution: >
+      Resuelto. La denylist literal salio del repo publico y ahora vive en
+      ~/.config/dev-agent-kit/denylist.local.json, que no se versiona. El repo
+      publica solo reglas estructurales que detectan la clase de
+      contaminacion sin nombrar a nadie. El scanner reporta los terminos
+      privados por hash (privado#8d2a6a7c54) para que el log de CI no filtre
+      el nombre; --private-labels los muestra en uso local.
     lesson: >
       Excluir el dato del producto no alcanza si el nombre del dato aparece en
-      la lista de exclusion publicada.
+      la lista de exclusion publicada. La lista de prohibiciones es tan
+      sensible como lo que prohibe: tiene que vivir fuera del repo.
+    status: resuelto
 
 # ---------------------------------------------------------------- descartes
 # Huellas que no se pudieron destilar. Se guarda el APRENDIZAJE, nunca el dato.
