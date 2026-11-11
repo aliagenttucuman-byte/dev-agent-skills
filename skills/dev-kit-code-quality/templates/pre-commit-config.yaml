@@ -1,0 +1,85 @@
+# Pre-commit base para un proyecto Python/TypeScript.
+#
+# Reglas de uso:
+#   1. Copiar a `.pre-commit-config.yaml` en la raiz del repo.
+#   2. Instalar con: pip install pre-commit && pre-commit install
+#   3. Verificar todo el repo con: pre-commit run --all-files
+#
+# El orden importa: formateo -> lint -> tipos -> tests -> secretos.
+# Un hook que formatea debe correr antes del que evalua el formato.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: \.(md|mdx)$
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=512]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-case-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      # Autofix de lint: corrige lo que se puede corregir solo.
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      # Formateo canonico. Debe correr despues del lint.
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.0
+    hooks:
+      - id: mypy
+        files: ^(src|tests)/
+        args: [--strict, --config-file=pyproject.toml]
+        additional_dependencies: [pydantic, sqlalchemy, types-requests]
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.17.0
+    hooks:
+      - id: eslint
+        types_or: [javascript, typescript, tsx]
+        args: [--fix, --max-warnings=0]
+      - id: prettier
+        types_or: [javascript, typescript, tsx, json, css, markdown, yaml]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+        args: [--redact, --no-banner]
+
+  - repo: local
+    hooks:
+      - id: pytest-fast
+        name: pytest (suite rapida)
+        entry: pytest -q -m "not slow and not e2e"
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-push]
+
+      - id: tsc-noemit
+        name: typescript typecheck
+        entry: npx tsc --noEmit
+        language: system
+        pass_filenames: false
+        files: \.(ts|tsx)$
+        stages: [pre-push]
+
+      - id: secret-scan-manual
+        name: sin secretos sin trackear
+        entry: bash -c 'git ls-files -z | xargs -0 grep -nEI "(api[_-]?key|secret|passwd|password)[[:space:]]*[:=][[:space:]]*[\"'\''][^\"'\'']{8,}" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+        types: [text]
+        stages: [pre-push]

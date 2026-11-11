@@ -1,0 +1,84 @@
+# Configuracion base de ruff para un proyecto de producto.
+#
+# Uso: copiar el contenido de este archivo a la seccion `[tool.ruff]` de
+# `pyproject.toml`. Si el proyecto ya tiene `[tool.ruff]`, mergear las claves.
+#
+# Convencion de ignores: cada ignore lleva un comentario que explica por que.
+# Un ignore sin justificacion se considera deuda.
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+extend-exclude = [
+  ".venv",
+  "alembic/versions",
+  "node_modules",
+  "build",
+  "dist",
+]
+
+# ----------------------------------------------------------------- lint
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle
+  "W",    # warnings de pycodestyle
+  "F",    # pyflakes
+  "I",    # isort
+  "B",    # bugbear
+  "C4",   # comprehensions
+  "SIM",  # simplificacion
+  "UP",   # sintaxis moderna
+  "N",    # pep8 naming
+  "ANN",  # anotaciones
+  "S",    # banda de seguridad
+  "PTH",  # pathlib
+  "RUF",  # opinion propia
+  "ASYNC",
+  "T20",  # print en vez de logging
+  "TID",  # imports ordenados
+  "PIE",
+  "PERF",
+]
+ignore = [
+  # Los prints se permiten en scripts de linea de comandos, no en la app.
+  "T201",
+  # La longitud ya la maneja el formateador.
+  "E501",
+]
+
+# ----------------------------------------------------------------- per-file
+[tool.ruff.lint.per-file-ignores]
+# Los tests usan fixtures y mocks: eso exige nombres y funciones mas relaxes.
+"tests/**/*" = ["ANN", "S101", "S105", "S106", "D103", "PLR2004", "ARG001"]
+# Los scripts de migracion y de seed usan prints.
+"alembic/**/*" = ["T201"]
+"scripts/**/*" = ["T201", "S101"]
+
+# ----------------------------------------------------------------- isort
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+combine-as-imports = true
+force-sort-within-sections = true
+
+# ----------------------------------------------------------------- pydocstyle
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# ----------------------------------------------------------------- mccabe
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+# ----------------------------------------------------------------- format
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+indent-width = 4
+line-ending = "lf"
+docstring-code-format = true
+skip-magic-trailing-comma = false
+
+# ----------------------------------------------------------------- seguridad
+[tool.ruff.lint.flake8-bandit]
+# Los hashes debiles se permiten solo para fingerprints no criptograficos.
+check-typed-exception = true

@@ -1,0 +1,256 @@
+openapi: 3.1.0
+info:
+  title: <Nombre del servicio>
+  version: 1.0.0
+  description: >
+    Contrato de API del proyecto. Este archivo es la fuente de verdad de la
+    superficie HTTP: si un endpoint no esta aqui, no existe.
+  contact:
+    name: <rol owner del contrato>
+servers:
+  - url: <url base por ambiente>
+    description: <nombre del ambiente>
+
+tags:
+  - name: <recurso>
+    description: <descripcion del recurso>
+
+paths:
+  /<recursos>:
+    get:
+      tags: [<recursos>]
+      summary: <Listar recursos>
+      description: <Que devuelve y en que condiciones.>
+      operationId: list<Recursos>
+      parameters:
+        - name: limit
+          in: query
+          description: Cantidad maxima de elementos por pagina.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          description: Cantidad de elementos a omitir desde el inicio.
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: <filtro>
+          in: query
+          description: <Significado del filtro y valores admitidos.>
+          schema:
+            type: string
+      responses:
+        "200":
+          description: <Cantidad de elementos en la pagina.>
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/<Recurso>List"
+        "401":
+          description: Credenciales ausentes o invalidas.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: El actor no tiene permiso sobre el recurso.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: Parametros de consulta invalidos.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+    post:
+      tags: [<recursos>]
+      summary: <Crear un recurso>
+      description: <Precondiciones y efecto de la operacion.>
+      operationId: create<Recurso>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/<Recurso>Create"
+      responses:
+        "201":
+          description: <Recurso creado.>
+          headers:
+            Location:
+              description: URL del recurso creado.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/<Recurso>"
+        "400":
+          description: El cuerpo de la peticion no es valido.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "409":
+          description: El recurso ya existe o la operacion no es idempotente.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: El cuerpo es valido pero viola las reglas de negocio.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /<recursos>/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador del recurso.
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [<recursos>]
+      summary: <Obtener un recurso>
+      operationId: get<Recurso>
+      responses:
+        "200":
+          description: <Recurso encontrado.>
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/<Recurso>"
+        "404":
+          description: El recurso no existe.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    patch:
+      tags: [<recursos>]
+      summary: <Actualizar parcialmente un recurso>
+      operationId: update<Recurso>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/<Recurso>Update"
+      responses:
+        "200":
+          description: <Recurso actualizado.>
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/<Recurso>"
+        "404":
+          description: El recurso no existe.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "409":
+          description: <Condicion que impide la actualizacion.>
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: <Regla de negocio violada.>
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+components:
+  schemas:
+    Problem:
+      type: object
+      description: Modelo de error unico de la API.
+      required: [type, title, status, detail, correlation_id]
+      properties:
+        type:
+          type: string
+          format: uri
+          example: "https://api.example.com/problems/not-found"
+        title:
+          type: string
+          example: "Recurso no encontrado"
+        status:
+          type: integer
+          example: 404
+        detail:
+          type: string
+          example: "El recurso solicitado no existe o fue dado de baja."
+        correlation_id:
+          type: string
+          example: "3f1a9c22-6b1e-4a2f-9d33-0a7f1c2b5e88"
+
+    <Recurso>:
+      type: object
+      required: [id, <campo_obligatorio>, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        <campo_obligatorio>:
+          type: string
+          maxLength: 120
+        <campo_opcional>:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    <Recurso>Create:
+      type: object
+      required: [<campo_obligatorio>]
+      properties:
+        <campo_obligatorio>:
+          type: string
+          maxLength: 120
+        <campo_opcional>:
+          type: string
+          nullable: true
+
+    <Recurso>Update:
+      type: object
+      properties:
+        <campo_obligatorio>:
+          type: string
+          maxLength: 120
+        <campo_opcional>:
+          type: string
+          nullable: true
+
+    <Recurso>List:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/<Recurso>"
+        total:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+        offset:
+          type: integer
