@@ -1,0 +1,134 @@
+# Task graph
+
+> Formato del grafo de tareas que usa el orquestador. Plantilla para copiar.
+
+## Estructura
+
+```yaml
+meta:
+  goal: "<objetivo del run, en una frase>"
+  created: "<timestamp ISO>"
+  spec_ref: "<ruta al spec que origina el run>"
+  run_id: "<id unico del run>"
+
+# Estados del orquestador
+state: decomposing   # idle | decomposing | assigning | executing | verifying | done | failed
+
+tasks:
+  - id: T1
+    subject: "<nombre corto en kebab-case>"
+    description: "<que hay que hacer exactamente, en una frase verificable>"
+    assigned_to: "<rol del agente>"
+    layer: "<backend|frontend|infra|qa|arch|docs|spec>"
+    complexity: <1|2|3>        # 1=low 2=medium 3=high
+    blocked_by: []             # ids de tareas que deben completarse antes
+    depends_on: []             # alias semantico (opcional)
+    context:
+      api_contract: "<contrato o endpoint relevante>"
+      design_ref: "<ruta del doc de diseno>"
+      existing_code: "<archivos o modulos que ya existen>"
+      conventions: "<convenciones vigentes a respetar>"
+      state_management: "<como se maneja el estado, si aplica>"
+    expected_output: "<que artefacto concreto produce>"
+    acceptance: "<como se verifica que esta terminada>"
+    timeout_minutes: 120
+    state: pending             # pending | in_progress | completed | failed | cancelled | paused
+    control_state: active      # active | paused | cancelled | retry
+    result: ""
+    error: ""
+    started_at: null
+    completed_at: null
+
+  - id: T2
+    subject: "<nombre corto>"
+    description: "<que hay que hacer>"
+    assigned_to: "<rol>"
+    layer: frontend
+    complexity: 2
+    blocked_by: [T1]
+    context:
+      api_contract: "<contrato firmado en T1>"
+    expected_output: "<componente o artefacto>"
+    acceptance: "<criterio observable>"
+    timeout_minutes: 120
+    state: pending
+    control_state: active
+    result: ""
+    error: ""
+
+# Registro de ejecucion (se va llenando durante el run)
+execution:
+  batches:
+    - batch: 1
+      tasks: [T1]
+      started_at: "<timestamp>"
+      completed_at: "<timestamp>"
+    - batch: 2
+      tasks: [T2]
+      started_at: null
+      completed_at: null
+
+  events:
+    - ts: "<timestamp>"
+      state: planned
+      task_id: null
+      agent: null
+      action: "descomposicion completada: 2 tareas"
+      result: ok
+```
+
+## Reglas de formato
+
+| Regla | Detalle |
+|---|---|
+| `id` | `T<n>` incremental, unico dentro del run |
+| `subject` | kebab-case, corto, describe el resultado no la accion |
+| `assigned_to` | Un rol, no una persona |
+| `blocked_by` | Solo ids de tareas existentes. Nunca el mismo |
+| `context` | Si esta vacio, la tarea no esta lista para ejecutar |
+| `expected_output` | Un artefacto concreto, no "hecho" |
+| `acceptance` | Observable y verificable por un tercero |
+| `state` | Se actualiza en cada transicion |
+| `control_state` | Permite pausar o cancelar desde afuera |
+
+## Ejemplo de contexto completo
+
+Una tarea con el contexto completo se puede ejecutar sin preguntar nada:
+
+```yaml
+  - id: T3
+    subject: "endpoint-de-exportacion"
+    description: "Implementar POST /exports que genera el archivo y responde 202 con el id del job"
+    assigned_to: "backend"
+    layer: backend
+    complexity: 2
+    blocked_by: [T2]
+    context:
+      api_contract: "specs/openapi.yaml#/paths/~1exports/post"
+      design_ref: "PLAN.md#api"
+      existing_code: "app/api/v1/, app/domain/, app/infrastructure/"
+      conventions: "reglas de error en app/core/errors.py; validacion con Pydantic"
+      database: "tabla export_jobs, migracion alembic 0042"
+      tests: "tests/api/v1/test_exports.py, fixture de auth en tests/conftest.py"
+    expected_output: "app/api/v1/exports.py con el endpoint y su test"
+    acceptance: "el test crea un export y verifica el 202 y el id del job"
+    timeout_minutes: 120
+    state: pending
+    control_state: active
+```
+
+## Anti-patrones del formato
+
+| Anti-patron | Consecuencia |
+|---|---|
+| `context` vacio | El agente tiene que preguntar, y el handoff se rompe |
+| `expected_output: "hecho"` | No hay forma de verificar la tarea |
+| `acceptance` subjective | La verificacion depende de quien mire |
+| `assigned_to` con un nombre de persona | No se puede mapear a la estructura del cliente |
+| `blocked_by` con un ciclo | El planificador no puede ordenar los batches |
+| `timeout_minutes` ausente | Una tarea colgada bloquea el run entero |
+
+## Referencias
+
+- `dev-kit-orchestrator/references/estados-y-transiciones.md` - maquina de estados
+- `dev-kit-task-breakdown` - como se construye este grafo

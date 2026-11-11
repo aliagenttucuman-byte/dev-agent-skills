@@ -235,7 +235,7 @@ sin dueño.
 | Restricciones sin numero | no se puede verificar ni cobrar | poner unidad y comportamiento al alcanzar el tope |
 | Reglas de negocio sin prueba | son preferencias disfrazadas | agregar `PRUEBA` o moverlas |
 | Prohibiciones sin deteccion | se erosiona en semanas | agregar como se detecta |
-| Escribirla despues de arrancar | legitima el codigo ya escrito |不具备 gate de fase 1 |
+| Escribirla despues de arrancar | legitima el codigo ya escrito | no tiene gate de fase 1 |
 | Revisarla en cada sprint completa | nadie la usa | versionarla y amendarla por cambio puntual |
 | Un documento largo sin owner | se desactualiza en silencio | un owner explicito y fecha de revision |
 

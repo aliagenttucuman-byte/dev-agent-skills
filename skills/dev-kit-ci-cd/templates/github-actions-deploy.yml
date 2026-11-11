@@ -1,0 +1,84 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Ambiente destino"
+        required: true
+        type: choice
+        options: [staging, production]
+      image_tag:
+        description: "Tag de la imagen a desplegar"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Desplegar a ${{ inputs.environment || 'staging' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: ${{ inputs.environment || 'staging' }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Verificar que CI paso
+        if: github.event_name == 'workflow_run'
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
+            echo "CI no paso: ${{ github.event.workflow_run.conclusion }}"
+            exit 1
+          fi
+
+      - name: Autenticar en el registro de imagenes
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.REGISTRY }}
+          username: ${{ vars.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+
+      - name: Descargar imagen
+        uses: actions/download-artifact@v4
+        with:
+          name: image-${{ github.sha }}
+          path: .
+
+      - name: Cargar imagen
+        run: docker load -i app.tar
+
+      - name: Desplegar
+        id: deploy
+        env:
+          ENVIRONMENT: ${{ inputs.environment || 'staging' }}
+          IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
+        run: |
+          # El comando concreto depende de la infraestructura destino.
+          # La regla: el deploy es idempotente y reversible.
+          deploy --env "$ENVIRONMENT" --tag "$IMAGE_TAG" --wait
+          echo "url=$(get_service_url "$ENVIRONMENT")" >> "$GITHUB_OUTPUT"
+
+      - name: Verificar salud
+        env:
+          SERVICE_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          for i in $(seq 1 10); do
+            if curl -fsS "$SERVICE_URL/health"; then
+              echo "Deploy verificado"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "El servicio no quedo saludable"
+          exit 1
+
+      - name: Rollback automatico
+        if: failure()
+        run: rollback --env "${{ inputs.environment || 'staging' }}" --to-previous

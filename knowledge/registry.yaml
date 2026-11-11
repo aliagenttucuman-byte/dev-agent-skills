@@ -10,7 +10,7 @@
 # usarse en 2+ proyectos distintos. Ver spec/product-spec.md § 4.4.
 
 meta:
-  version: 1
+  version: 2
   updated: "2026-11-11"
   kit_version: "0.1.0"
 
@@ -113,6 +113,34 @@ skills:
     summary: Convenciones del frontend y arbol de componentes.
     source: destilada
 
+  - name: dev-kit-python-tooling
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: "Tooling de Python: pyproject, entornos, ruff, mypy, pyright, packaging, CI."
+    source: destilada
+
+  - name: dev-kit-python-async
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: "Programacion asincrona: TaskGroup, cancelacion, timeouts, concurrencia."
+    source: destilada
+
+  - name: dev-kit-react-testing
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: "Testing de React: Vitest, Testing Library, MSW, Playwright."
+    source: destilada
+
+  - name: dev-kit-react-architecture
+    status: idea
+    area: engineering
+    projects_used: 0
+    summary: "Arquitectura React: features, estado de servidor, RSC, code splitting."
+    source: destilada
+
   - name: dev-kit-database
     status: idea
     area: engineering
@@ -162,34 +190,91 @@ skills:
     summary: Checklist de review, severidad y bloqueos de merge.
     source: destilada
 
-  - name: dev-kit-rag-pipeline
-    status: idea
-    area: vertical
-    projects_used: 0
-    summary: Chunking, embeddings, retrieval y evaluacion.
-    source: destilada
 
-  - name: dev-kit-browser-agent
-    status: idea
-    area: vertical
-    projects_used: 0
-    summary: Agente de navegador para scraping y QA exploratorio.
-    source: destilada
 
-  - name: dev-kit-document-processing
-    status: idea
-    area: vertical
-    projects_used: 0
-    summary: Extraccion y limpieza de texto de documentos.
-    source: destilada
 
 # ---------------------------------------------------------------- ideas pendientes
 # Lo que todavia no es skill pero se detecto como patron reusable.
-ideas: []
+ideas:
+  - name: dev-kit-hermes-bootstrap
+    area: methodology
+    status: idea
+    projects_used: 0
+    summary: >
+      Levantar y configurar el runtime de agentes en Linux, macOS y Windows.
+      Cubre instalacion por plataforma, configuracion de provider, gateway
+      durable y verificacion con hermes doctor.
+    why: >
+      El kit instala skills pero asume que el runtime ya esta andando. Sin esto,
+      el cliente tiene que resolver el setup por su cuenta y el producto queda
+      a medio camino de lo que promete.
+    blocked_by: >
+      Los quirks de macOS (launchd para el gateway) no estan verificados. No se
+      escribe una skill con comportamiento sin verificar.
+    source: destilada
+
+  - name: dev-kit-mobile-react-native
+    area: vertical
+    status: idea
+    projects_used: 0
+    summary: >
+      Construccion y publicacion de apps React Native: estructura, navegacion,
+      builds y stores.
+    why: Ya hay cobertura de React web; falta la vertical mobile.
+    source: destilada
 
 # ---------------------------------------------------------------- gaps detectados
 # Donde el kit no cubrio algo y senotationo durante un proyecto real.
-gaps: []
+gaps:
+  - date: "2026-11-11"
+    area: tooling
+    finding: >
+      El scanner no detectaba caracteres corruptos (CJK, hangul, cirilico).
+      Tres skills ya publicadas tenian ideogramas colados por autocompletado
+      que nadie habia notado.
+    resolution: >
+      Se agrego el check corrupted-char a scan_clean.py, con una allowlist
+      explicita de caracteres de dibujo de cajas para los arboles de carpetas.
+    lesson: >
+      Un scanner que no verifica la ortografia de los caracteres no verifica la
+      genericidad. Los caracteres no esperados son el sintoma de un LLM escribiendo
+      con otro tokenizer.
+
+  - date: "2026-11-11"
+    area: tooling
+    finding: >
+      El instalador apuntaba a dev-agent-kit/skills, pero las skills se movieron
+      a dev-agent-skills/skills tras separar los repos. El smoke test nunca se
+      habia corrido, asi que el fallo estaba invisible.
+    resolution: >
+      El instalador resuelve el origen por variable de entorno, repo hermano o
+      fallback monorepo. El smoke test ahora corre en verde 5/5.
+    lesson: >
+      Los tests que existen pero no se ejecutan son Worse que no tenerlos: dan
+      una sensacion de cobertura que no existe.
+
+  - date: "2026-11-11"
+    area: tooling
+    finding: >
+      El manifest declaraba 24 skills y solo existian 21. La instalacion por
+      perfiles fallaba en silencio para las verticales ausentes.
+    resolution: >
+      Se reconcilio el manifest contra el filesystem: 25 declaradas, 25 reales,
+      cero discrepancias. Las verticales RAG, browser y documentos se quitaron
+      del manifest hasta que existan.
+    lesson: >
+      Un inventario de skills tiene que ser generado, no mantenido a mano. La
+      verificacion cruzada contra el filesystem es la unica que no miente.
+
+  - date: "2026-11-11"
+    area: tooling
+    finding: >
+      La denylist de forbidden_terms.py vive en un repo publico con los nombres
+      exactos de los clientes que se quiere excluir.
+    resolution: PENDIENTE - migrar a hashes o configuracion local.
+    lesson: >
+      Excluir el dato del producto no alcanza si el nombre del dato aparece en
+      la lista de exclusion publicada.
 
 # ---------------------------------------------------------------- descartes
 # Huellas que no se pudieron destilar. Se guarda el APRENDIZAJE, nunca el dato.

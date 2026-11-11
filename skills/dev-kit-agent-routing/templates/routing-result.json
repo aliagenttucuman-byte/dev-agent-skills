@@ -1,0 +1,23 @@
+{
+  "_comentario": "Formato de salida de scripts/route.py. Este archivo es la referencia del contrato: cualquier cambio en la salida del router debe reflejarse aca. Los campos con prefijo underscore son documentacion y no forman parte del payload.",
+  "goal": "revisar el modelo de datos",
+  "category": "BACKEND",
+  "agent": "backend",
+  "confidence": 1.0,
+  "reasons": [
+    "match exacto: 'modelo' (+1.0)"
+  ],
+  "alternatives": [],
+  "fallback": null,
+  "needs_clarification": false,
+  "_contrato": {
+    "goal": "string - el objetivo en lenguaje natural, tal como se recibio",
+    "category": "string - la clave de la taxonomia que gano. Es una categoria logica, no un nombre de agente.",
+    "agent": "string - el rol generico al que se rutea. Roles, nunca nombres de persona.",
+    "confidence": "number 0..1 - fuerza del match. 1.0 es un match exacto de keyword.",
+    "reasons": "array[string] - por que se eligio esa categoria. Cada motivo incluye el termino que matcheo y su puntaje.",
+    "alternatives": "array[object] - categorias descartadas con su confianza. Se llena cuando el match fue ambiguo.",
+    "fallback": "object|null - agente por defecto cuando la confianza no alcanza el umbral.",
+    "needs_clarification": "boolean - true cuando el objetivo es demasiado ambiguo y hay que preguntar antes de actuar."
+  }
+}
